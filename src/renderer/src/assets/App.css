@@ -29,12 +29,20 @@ body,
   left: 0;
 }
 
+/* Add this to your App.css */
 .controls {
+  -webkit-app-region: drag;
   flex: 0 0 auto;
   padding: 10px;
   background-color: #f0f0f0;
   z-index: 10;
   margin-left: 80px;
+}
+
+/* Make buttons and inputs not draggable */
+.controls button,
+.controls input {
+  -webkit-app-region: no-drag;
 }
 
 .webview-wrapper {

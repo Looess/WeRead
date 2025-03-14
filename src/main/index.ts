@@ -11,7 +11,9 @@ function createWindow(): void {
     show: true,
     transparent: true, // 启用窗口透明
     frame: false, // 移除标准框架
-    titleBarStyle: 'hidden',
+    // titleBarStyle: 'hidden',
+    titleBarStyle: 'hiddenInset', // Changed from 'hidden' to 'hiddenInset'
+    trafficLightPosition: { x: 10, y: 10 }, // Position window controls (for macOS)
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
