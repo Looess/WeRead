@@ -1,34 +1,10 @@
-# wereadelectron
+# Read Transparent
 
-An Electron application with React and TypeScript
+An Electron application Can Read WeRead Transparent
 
-## Recommended IDE Setup
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
-## Project Setup
-
-### Install
-
-```bash
-$ npm install
-```
-
-### Development
-
-```bash
-$ npm run dev
-```
-
-### Build
-
-```bash
-# For windows
-$ npm run build:win
-
-# For macOS
-$ npm run build:mac
-
-# For Linux
-$ npm run build:linux
-```
+todo:
+1. 抽出toolbar的组件,优化代码结构
+2. 优化快捷键设置成全局
+3. 优化样式

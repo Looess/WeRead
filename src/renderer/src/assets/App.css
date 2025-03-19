@@ -34,9 +34,11 @@ body,
   -webkit-app-region: drag;
   flex: 0 0 auto;
   padding: 10px;
-  background-color: #f0f0f0;
+  height: 30px;
+  /* background-color: #f0f0f0; */
   z-index: 10;
   margin-left: 80px;
+  margin-right: 80px;
 }
 
 /* Make buttons and inputs not draggable */
@@ -48,6 +50,7 @@ body,
 .webview-wrapper {
   flex: 1;
   position: relative;
+  will-change: transform;
 }
 
 .webview {

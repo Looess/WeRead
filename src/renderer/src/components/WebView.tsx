@@ -1,16 +1,46 @@
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { WebviewTag } from 'electron'
 interface WebViewProps {
   url: string
   className?: string
 }
 
-function WebView({ url }: WebViewProps): JSX.Element {
+function WebView({ url }: WebViewProps): React.JSX.Element {
   const webviewRef = useRef<WebviewTag>(null)
   const [cssKey, setCssKey] = useState<string | null>(null)
+  const [transparentKey, setTransparent] = useState<string | null>(null)
   const [opacity, setOpacity] = useState<number>(0.5)
   const [isWebviewReady, setIsWebviewReady] = useState<boolean>(false)
-
+  const [controlsVisible, setControlsVisible] = useState<boolean>(true)
+  const setBackgroundTransparent = async (): Promise<void> => {
+    if (webviewRef.current && isWebviewReady) {
+      try {
+        const key = await webviewRef.current.insertCSS(`
+          * {
+            background-color: transparent !important;
+          }`)
+        setTransparent(key)
+      } catch (error) {
+        console.error('[setBackgroundTransparent] error :', error)
+      }
+    } else {
+      console.warn('WebView 尚未准备好或不可用')
+    }
+  }
+  const removeBackgroundTransparent = async (): Promise<void> => {
+    if (webviewRef.current && isWebviewReady) {
+      try {
+        if (transparentKey) {
+          await webviewRef.current.removeInsertedCSS(transparentKey)
+          setTransparent(null)
+        }
+      } catch (error) {
+        console.error('[removeBackgroundTransparent] error :', error)
+      }
+    } else {
+      console.warn('WebView 尚未准备好或不可用')
+    }
+  }
   // 设置 CSS
   const setCSS = async (): Promise<void> => {
     if (webviewRef.current && isWebviewReady) {
@@ -19,23 +49,14 @@ function WebView({ url }: WebViewProps): JSX.Element {
         if (cssKey) {
           await webviewRef.current.removeInsertedCSS(cssKey)
         }
-
-        // 注入新的 CSS
         const key = await webviewRef.current.insertCSS(`
-          * {
-            background-color: transparent !important;
-          }
           body {
             opacity: ${opacity} !important;
           }
         `)
         setCssKey(key)
-        console.log('CSS 已成功注入，键值为:', key)
-      } catch (error) {
-        console.error('应用 CSS 失败:', error)
-      }
+      } catch (error) {}
     } else {
-      console.warn('WebView 尚未准备好或不可用')
     }
   }
 
@@ -44,13 +65,9 @@ function WebView({ url }: WebViewProps): JSX.Element {
     if (webviewRef.current && cssKey && isWebviewReady) {
       try {
         await webviewRef.current.removeInsertedCSS(cssKey)
-        console.log('CSS 已成功清除')
         setCssKey(null)
-      } catch (error) {
-        console.error('清除 CSS 失败:', error)
-      }
+      } catch (error) {}
     } else {
-      console.warn('没有可清除的 CSS 或 WebView 不可用')
     }
   }
 
@@ -65,14 +82,27 @@ function WebView({ url }: WebViewProps): JSX.Element {
 
       webview.addEventListener('dom-ready', handleReady)
 
-      // 清理函数
+      const handleKeyDown = (event: KeyboardEvent): void => {
+        // 检查组合键 (Ctrl+H)
+        if (event.metaKey && event.key === 'p') {
+          console.log('检测到 Ctrl+H 快捷键')
+          toggleControls() // 切换控制面板可见性
+          event.preventDefault() // 阻止默认行为
+        }
+      }
+
+      // 添加全局键盘事件监听器
+      window.addEventListener('keydown', handleKeyDown)
+      // 清理函数,在组件卸载时调用
       return (): void => {
         webview.removeEventListener('dom-ready', handleReady)
+        window.removeEventListener('keydown', handleKeyDown)
       }
     }
 
     // 当 webview 不存在时返回空函数作为清理函数
     return (): void => {}
+    //空数组代表只在组件挂载时执行
   }, [])
 
   // 当 opacity 变化时自动应用 CSS
@@ -80,28 +110,41 @@ function WebView({ url }: WebViewProps): JSX.Element {
     if (isWebviewReady) {
       setCSS()
     }
-  }, [opacity, isWebviewReady])
+  }, [opacity])
 
   const handleOpacityChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ): void => {
     setOpacity(parseFloat(event.target.value))
   }
-
+  const toggleControls = (): void => {
+    setControlsVisible((prev) => !prev)
+  }
   return (
     <div className="webview-container">
       <div className="controls">
-        <button onClick={setCSS}>Set CSS</button>
-        <button onClick={clearCSS}>Clear CSS</button>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.05"
-          value={opacity}
-          onChange={handleOpacityChange}
-        />
+        {/* 使用条件渲染来显示/隐藏控制面板 */}
+        {controlsVisible && (
+          <div className="controls">
+            <button onClick={setBackgroundTransparent}>Set Transparent</button>
+            <button onClick={removeBackgroundTransparent}>
+              Remove Transparent
+            </button>
+            <button onClick={setCSS}>Set CSS</button>
+            <button onClick={clearCSS}>Clear CSS</button>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={opacity}
+              onChange={handleOpacityChange}
+            />
+          </div>
+        )}
       </div>
+      {/* 添加一个始终可见的切换按钮 */}
+
       <div className="webview-wrapper">
         <webview ref={webviewRef} src={url} className="webview"></webview>
       </div>
