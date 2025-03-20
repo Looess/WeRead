@@ -6,3 +6,14 @@ declare global {
     api: unknown
   }
 }
+interface ContextAPI {
+  locale: string;
+  togglePinToDesktop: (shouldPin: boolean) => Promise<boolean>;
+  getPinStatus: () => Promise<boolean>;
+}
+
+declare global {
+  interface Window {
+    context: ContextAPI;
+  }
+}

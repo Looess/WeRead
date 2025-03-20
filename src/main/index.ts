@@ -54,6 +54,19 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  ipcMain.handle('toggle-pin-to-desktop', (_, shouldPin) => {
+    const mainWindow = BrowserWindow.getFocusedWindow();
+    if (mainWindow) {
+      mainWindow.setAlwaysOnTop(shouldPin);
+      return mainWindow.isAlwaysOnTop();
+    }
+    return false;
+  });
+
+  ipcMain.handle('get-pin-status', () => {
+    const mainWindow = BrowserWindow.getFocusedWindow();
+    return mainWindow ? mainWindow.isAlwaysOnTop() : false;
+  });
   createWindow()
 
   app.on('activate', function () {

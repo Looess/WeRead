@@ -10,7 +10,7 @@ function WebViewToolBar({ webviewRef }: WebViewToolBarProps): React.JSX.Element 
   const [opacity, setOpacity] = useState<number>(0.5)
   const [isWebviewReady, setIsWebviewReady] = useState<boolean>(false)
   const [controlsVisible, setControlsVisible] = useState<boolean>(true)
-
+  const [isPinned, setIsPinned] = useState(false);
 
   const setBackgroundTransparent = async (): Promise<void> => {
     if (webviewRef.current && isWebviewReady) {
@@ -71,7 +71,14 @@ function WebViewToolBar({ webviewRef }: WebViewToolBarProps): React.JSX.Element 
     } else {
     }
   }
-
+  const checkPinStatus = async () => {
+    const status = await window.context.getPinStatus();
+    setIsPinned(status);
+  };
+  const togglePin = async () => {
+    const status = await window.context.togglePinToDesktop(!isPinned);
+    setIsPinned(status);
+  };
   useEffect(() => {
     // 监听 webview dom-ready 事件
     const webview = webviewRef.current
@@ -80,9 +87,8 @@ function WebViewToolBar({ webviewRef }: WebViewToolBarProps): React.JSX.Element 
         console.log('WebView DOM 已准备好')
         setIsWebviewReady(true)
       }
-
+      checkPinStatus();
       webview.addEventListener('dom-ready', handleReady)
-
       const handleKeyDown = (event: KeyboardEvent): void => {
         // 检查组合键 (Ctrl+H)
         if (event.metaKey && event.key === 'p') {
@@ -125,6 +131,12 @@ function WebViewToolBar({ webviewRef }: WebViewToolBarProps): React.JSX.Element 
             </button>
             <button onClick={setCSS}>Set CSS</button>
             <button onClick={clearCSS}>Clear CSS</button>
+            <button
+                onClick={togglePin}
+                title={isPinned ? "Unpin from desktop" : "Pin to desktop"}
+            >
+              {isPinned ? "📌" : "📍"}
+            </button>
             <input
               type="range"
               min="0"
