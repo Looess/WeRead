@@ -1,17 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { WebviewTag } from 'electron'
-interface WebViewProps {
-  url: string
-  className?: string
+interface WebViewToolBarProps {
+  webviewRef: React.RefObject<WebviewTag>
 }
+function WebViewToolBar({ webviewRef }: WebViewToolBarProps): React.JSX.Element {
 
-function WebView({ url }: WebViewProps): React.JSX.Element {
-  const webviewRef = useRef<WebviewTag>(null)
   const [cssKey, setCssKey] = useState<string | null>(null)
   const [transparentKey, setTransparent] = useState<string | null>(null)
   const [opacity, setOpacity] = useState<number>(0.5)
   const [isWebviewReady, setIsWebviewReady] = useState<boolean>(false)
   const [controlsVisible, setControlsVisible] = useState<boolean>(true)
+
+
   const setBackgroundTransparent = async (): Promise<void> => {
     if (webviewRef.current && isWebviewReady) {
       try {
@@ -57,6 +57,7 @@ function WebView({ url }: WebViewProps): React.JSX.Element {
         setCssKey(key)
       } catch (error) {}
     } else {
+
     }
   }
 
@@ -85,15 +86,10 @@ function WebView({ url }: WebViewProps): React.JSX.Element {
       const handleKeyDown = (event: KeyboardEvent): void => {
         // 检查组合键 (Ctrl+H)
         if (event.metaKey && event.key === 'p') {
-          console.log('检测到 Ctrl+H 快捷键')
           toggleControls() // 切换控制面板可见性
-          event.preventDefault() // 阻止默认行为
         }
       }
-
-      // 添加全局键盘事件监听器
       window.addEventListener('keydown', handleKeyDown)
-      // 清理函数,在组件卸载时调用
       return (): void => {
         webview.removeEventListener('dom-ready', handleReady)
         window.removeEventListener('keydown', handleKeyDown)
@@ -112,9 +108,7 @@ function WebView({ url }: WebViewProps): React.JSX.Element {
     }
   }, [opacity])
 
-  const handleOpacityChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
+  const handleOpacityChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setOpacity(parseFloat(event.target.value))
   }
   const toggleControls = (): void => {
@@ -123,7 +117,6 @@ function WebView({ url }: WebViewProps): React.JSX.Element {
   return (
     <div className="webview-container">
       <div className="controls">
-        {/* 使用条件渲染来显示/隐藏控制面板 */}
         {controlsVisible && (
           <div className="controls">
             <button onClick={setBackgroundTransparent}>Set Transparent</button>
@@ -143,13 +136,8 @@ function WebView({ url }: WebViewProps): React.JSX.Element {
           </div>
         )}
       </div>
-      {/* 添加一个始终可见的切换按钮 */}
-
-      <div className="webview-wrapper">
-        <webview ref={webviewRef} src={url} className="webview"></webview>
-      </div>
     </div>
   )
 }
 
-export default WebView
+export default WebViewToolBar

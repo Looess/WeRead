@@ -29,7 +29,6 @@ body,
   left: 0;
 }
 
-/* Add this to your App.css */
 .controls {
   -webkit-app-region: drag;
   flex: 0 0 auto;
