@@ -121,34 +121,37 @@ function WebViewToolBar({ webviewRef }: WebViewToolBarProps): React.JSX.Element 
     setControlsVisible((prev) => !prev)
   }
   return (
-    <div className="webview-container">
-      <div className="controls">
+    // <div className="webview-container">
+    //   <div className="controls">
+      <div>
         {controlsVisible && (
-          <div className="controls">
-            <button onClick={setBackgroundTransparent}>Set Transparent</button>
-            <button onClick={removeBackgroundTransparent}>
-              Remove Transparent
-            </button>
-            <button onClick={setCSS}>Set CSS</button>
-            <button onClick={clearCSS}>Clear CSS</button>
-            <button
-                onClick={togglePin}
-                title={isPinned ? "Unpin from desktop" : "Pin to desktop"}
-            >
-              {isPinned ? "📌" : "📍"}
-            </button>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={opacity}
-              onChange={handleOpacityChange}
-            />
-          </div>
+            <div className="controls">
+              <button onClick={setBackgroundTransparent}>Set Transparent</button>
+              <button onClick={removeBackgroundTransparent}>
+                Remove Transparent
+              </button>
+              <button onClick={setCSS}>Set CSS</button>
+              <button onClick={clearCSS}>Clear CSS</button>
+              <button
+                  onClick={togglePin}
+                  title={isPinned ? "Unpin from desktop" : "Pin to desktop"}
+              >
+                {isPinned ? "📌" : "📍"}
+              </button>
+              <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={opacity}
+                  onChange={handleOpacityChange}
+              />
+            </div>
         )}
       </div>
-    </div>
+
+    //   </div>
+    // </div>
   )
 }
 
