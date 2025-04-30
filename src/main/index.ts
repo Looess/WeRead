@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain,globalShortcut } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -39,6 +39,37 @@ function createWindow(): void {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
+function registerShortCut() {
+  globalShortcut.register('CommandOrControl+H', () => {
+    const mainWindow = BrowserWindow.getFocusedWindow();
+    if (mainWindow) {
+      mainWindow.hide();
+    }
+  });
+  globalShortcut.register('CommandOrControl+S', () => {
+    const mainWindow = BrowserWindow.getFocusedWindow();
+    if (mainWindow) {
+      mainWindow.show();
+    }
+  });
+}
+
+function RegeisterPinFunction() {
+  ipcMain.handle('toggle-pin-to-desktop', (_, shouldPin) => {
+    const mainWindow = BrowserWindow.getFocusedWindow();
+    if (mainWindow) {
+      mainWindow.setAlwaysOnTop(shouldPin);
+      return mainWindow.isAlwaysOnTop();
+    }
+    return false;
+  });
+
+  ipcMain.handle('get-pin-status', () => {
+    const mainWindow = BrowserWindow.getFocusedWindow();
+    return mainWindow ? mainWindow.isAlwaysOnTop() : false;
+  });
+}
+
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
@@ -54,21 +85,14 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  ipcMain.handle('toggle-pin-to-desktop', (_, shouldPin) => {
-    const mainWindow = BrowserWindow.getFocusedWindow();
-    if (mainWindow) {
-      mainWindow.setAlwaysOnTop(shouldPin);
-      return mainWindow.isAlwaysOnTop();
-    }
-    return false;
-  });
-
-  ipcMain.handle('get-pin-status', () => {
-    const mainWindow = BrowserWindow.getFocusedWindow();
-    return mainWindow ? mainWindow.isAlwaysOnTop() : false;
-  });
+  // pin function
+  RegeisterPinFunction();
   createWindow()
-
+  registerShortCut();
+  app.on('will-quit', () => {
+    // 注销所有快捷键
+    globalShortcut.unregisterAll()
+  })
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -81,3 +105,6 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+
+
