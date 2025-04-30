@@ -9,8 +9,8 @@ function createWindow(): void {
     width: 1200,
     height: 800,
     show: true,
-    transparent: true, // 启用窗口透明
     frame: false, // 移除标准框架
+    transparent: true, // 启用窗口透明
     // titleBarStyle: 'hidden',
     titleBarStyle: 'hiddenInset', // Changed from 'hidden' to 'hiddenInset'
     trafficLightPosition: { x: 10, y: 10 }, // Position window controls (for macOS)
